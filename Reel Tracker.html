@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reel Tracker</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f4f4f1;--panel:#fff;--text:#14150f;--mute:#6a6d62;--line:#e2e3dc;--soft:#eef0e8;--g:#3d8a00;--y:#a87c00;--ink:#fff;--bad:#c2331f;
+--fd:"Bricolage Grotesque","DM Sans",system-ui,sans-serif;--fb:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0c09;--panel:#14160f;--text:#f1f2ea;--mute:#8f9383;--line:#262a1e;--soft:#1c1f15;--g:#b6f23a;--y:#ffd60a;--ink:#0b0c09;--bad:#ff6b57}}
+:root[data-theme="dark"]{--bg:#0b0c09;--panel:#14160f;--text:#f1f2ea;--mute:#8f9383;--line:#262a1e;--soft:#1c1f15;--g:#b6f23a;--y:#ffd60a;--ink:#0b0c09;--bad:#ff6b57}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--fb);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 16px 90px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+h1{font:800 26px/1 var(--fd);margin:0;letter-spacing:-.02em}
+.month{display:flex;align-items:center;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:3px}
+.month b{font:700 15px var(--fd);min-width:130px;text-align:center}
+button{font:inherit;color:inherit;cursor:pointer}
+.ib{width:34px;height:34px;border-radius:99px;border:0;background:transparent;font-size:18px}.ib:hover{background:var(--soft)}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:700;background:var(--text);color:var(--bg)}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.acts{display:flex;gap:8px}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}
+.p-5calehq{--ac:var(--g)}.p-n3xtgenhq{--ac:var(--y)}
+.ph{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.name{font:700 16px var(--fd);display:flex;align-items:center;gap:8px}.name i{width:10px;height:10px;border-radius:50%;background:var(--ac)}
+.pill{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--soft);color:var(--mute)}
+.pill.ok{background:var(--ac);color:var(--ink)}
+.count{font:800 64px/1 var(--fd);letter-spacing:-.04em;margin:14px 0 2px}.count small{font:500 18px var(--fb);color:var(--mute);letter-spacing:0}
+.ruler{position:relative;height:12px;background:var(--soft);border-radius:99px;margin:18px 0 26px}
+.fill{position:absolute;inset:0 auto 0 0;background:var(--ac);border-radius:99px;transition:width .6s cubic-bezier(.2,.8,.2,1);max-width:100%}
+.tick{position:absolute;top:-4px;width:2px;height:20px;background:var(--line);transform:translateX(-1px)}
+.tick span{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--mute);font-weight:700}
+.tick.hit{background:var(--text)}.tick.hit span{color:var(--text)}
+.tick.last span{transform:translateX(-100%);left:100%}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 0 14px}
+.stats span{display:block;font-size:12px;color:var(--mute)}.stats b{font:700 20px var(--fd)}
+.pace{font-size:13px;color:var(--mute);margin:0 0 12px}
+.chk{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.chk li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.chk li em{font-style:normal;color:var(--mute)}.chk li.hit b:before{content:"✓ ";color:var(--ac)}.chk li:not(.hit) b:before{content:"○ ";color:var(--mute)}
+.sec{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:28px 0 10px}
+.sec h2{font:700 18px var(--fd);margin:0}
+.seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--mute)}
+.seg button[aria-pressed="true"]{background:var(--text);color:var(--bg);font-weight:700}
+.list{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.row{display:grid;grid-template-columns:1fr auto auto;gap:6px 14px;align-items:center;padding:13px 16px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.t b{display:block;font-weight:700;overflow:hidden;text-overflow:ellipsis}.t small{color:var(--mute);display:flex;gap:6px;align-items:center}
+.t small i{width:8px;height:8px;border-radius:50%;background:var(--ac)}
+.v{display:flex;flex-direction:column;align-items:flex-end}
+.v input{width:120px;text-align:right;font:700 20px var(--fd);background:transparent;color:var(--text);border:1px solid transparent;border-radius:8px;padding:3px 8px}
+.v input:hover{border-color:var(--line)}.v input:focus{border-color:var(--ac);background:var(--soft)}
+.d{font-size:12px;color:var(--g);font-weight:700;min-height:16px}.d.neg{color:var(--bad)}
+.ra{display:flex;gap:2px}.ra a,.ra button{width:34px;height:34px;display:grid;place-items:center;border-radius:8px;border:0;background:transparent;color:var(--mute);text-decoration:none}
+.ra a:hover,.ra button:hover{background:var(--soft);color:var(--text)}
+.star{font-size:11px;font-weight:700;background:var(--ac);color:var(--ink);padding:1px 7px;border-radius:99px;margin-left:6px}
+.ab{width:100%;max-width:240px;margin-top:6px;padding:5px 8px;font-size:13px}.sm{padding:6px 10px;font-size:12.5px}.frow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.frow .t small{display:block}.frow div:last-child{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.fin{max-width:230px;padding:6px 10px}.fv{font:700 18px var(--fd);margin-right:6px;align-self:center}.frow .fv{display:inline-block}.sum{font-size:13px;color:var(--mute);margin:8px 0}.warn{color:var(--bad);font-weight:700}.empty{padding:36px 16px;text-align:center;color:var(--mute)}.empty b{display:block;color:var(--text);font:700 17px var(--fd);margin-bottom:4px}
+dialog{border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--text);padding:22px;width:min(460px,92vw)}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+dialog h3{font:800 20px var(--fd);margin:0 0 14px}
+label{display:block;font-size:12.5px;color:var(--mute);margin:10px 0 4px;font-weight:500}
+input,select,textarea{width:100%;font:inherit;color:var(--text);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px}
+textarea{height:70px;font-size:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fa{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;pointer-events:none;background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:500;display:flex;gap:14px;align-items:center;transition:.25s;z-index:9}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}.toast button{border:0;background:transparent;font-weight:700;text-decoration:underline;color:inherit}
+#views{margin:0 0 18px}.sgtop{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.sgstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.sgc{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px}.sgc span{display:block;font-size:12.5px;color:var(--mute)}.sgc b{font:800 34px/1.1 var(--fd);letter-spacing:-.03em}.sgc small{display:block;font-size:12px;color:var(--mute);margin-top:2px}
+.sgsplit{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:6px}
+.sgsplit .sgc b{font-size:26px}.sgsplit .p-5calehq,.sgsplit .p-n3xtgenhq{border-top:3px solid var(--ac)}
+.heat{display:flex;gap:3px;flex-wrap:wrap;margin:0 0 10px}.heat i{width:14px;height:14px;border-radius:4px;background:var(--soft)}.heat i.on{background:var(--ac)}.heat i.td{outline:2px solid var(--text);outline-offset:1px}.heat i.fut{opacity:.4}
+#ins{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:16px}#ins:empty{display:none}
+.lb{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;padding:6px 0;border-bottom:1px solid var(--line)}.lb:last-child{border:0}.lb em{font-style:normal;color:var(--mute)}
+.mb{display:grid;grid-template-columns:70px 1fr 60px;gap:8px;align-items:center;font-size:13px;margin-top:8px}.mb div{background:var(--soft);border-radius:99px;height:10px}.mb u{display:block;height:100%;background:var(--g);border-radius:99px}.mb em{font-style:normal;color:var(--mute)}.mb b{text-align:right}
+@media (max-width:560px){.count{font-size:54px}.row{grid-template-columns:1fr auto}.ra{grid-column:1/-1;justify-content:flex-end}.top{align-items:flex-start}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="top">
+  <h1>Reel tracker</h1>
+  <div class="month"><button class="ib" id="prev" aria-label="Previous month">‹</button><b id="mlabel"></b><button class="ib" id="next" aria-label="Next month">›</button></div>
+  <div class="acts"><button class="btn ghost" id="openForm">Month-end form</button><button class="btn ghost" id="openSet">Settings</button><button class="btn" id="openAdd">+ Add reel</button></div>
+ </div>
+ <div class="views" id="views"><div class="seg" id="vSeg"><button data-v="tracker" aria-pressed="true">Tracker</button><button data-v="sg" aria-pressed="false">Sanjiv Goenka</button></div></div>
+ <div id="sgView" hidden></div>
+ <div class="panels" id="panels"></div>
+ <div id="ins"></div>
+ <div class="sec" id="secMain"><h2>Reels this month</h2>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="q" type="search" placeholder="Search reels" aria-label="Search reels" style="width:150px;padding:6px 10px">
+   <div class="seg" id="fPage"><button data-v="" aria-pressed="true">Both</button><button data-v="5calehq">5calehq</button><button data-v="n3xtgenhq">n3xtgenhq</button></div>
+   <div class="seg" id="fSort"><button data-v="date" aria-pressed="true">Newest</button><button data-v="views">Most views</button></div>
+  </div></div>
+ <div class="list" id="list"></div>
+</div>
+
+<dialog id="dAdd"><form id="fAdd"><h3>Add a reel</h3>
+ <div class="two"><div><label for="nDate">Date posted</label><input type="date" id="nDate" required></div>
+ <div><label for="nPage">Page</label><select id="nPage"><option>5calehq</option><option>n3xtgenhq</option></select></div></div>
+ <label for="nTitle">Title</label><input id="nTitle" placeholder="e.g. Beyond the IPL: Sanjiv Goenka">
+ <label for="nAbout">Whom is the reel about?</label><input id="nAbout" list="people" placeholder="Pick a name or type your own" autocomplete="off"><datalist id="people"><option value="Sanjiv Goenka"><option value="Ambani"><option value="Nikhil Kamath"></datalist>
+ <label for="nLink">Instagram link</label><input id="nLink" type="url" placeholder="https://instagram.com/reel/…">
+ <label for="nViews">Views so far</label><input id="nViews" type="number" min="0" placeholder="0">
+ <div class="fa"><button type="button" class="btn ghost" data-close>Cancel</button><button type="button" class="btn ghost" id="addMore">Save &amp; add another</button><button class="btn">Save reel</button></div></form></dialog>
+
+<dialog id="dSet"><h3>Settings</h3>
+ <label for="sT">Reels needed for the full payout</label><input type="number" id="sT">
+ <div class="two"><div><label for="s24">24 reels + one reel with views of</label><input type="number" id="s24"></div>
+ <div><label for="s20">20 reels + one reel with views of</label><input type="number" id="s20"></div></div>
+ <label for="bk">Backup (copy this text somewhere safe)</label><textarea id="bk"></textarea>
+ <div class="fa" style="justify-content:space-between"><div style="display:flex;gap:8px"><button class="btn ghost" id="bkMake">Show backup</button><button class="btn ghost" id="bkLoad">Restore from text</button><button class="btn ghost" id="csvCopy">Copy CSV</button></div><button class="btn" data-close>Done</button></div></dialog>
+
+<dialog id="dForm" style="width:min(720px,94vw)"><h3>Month-end form</h3>
+ <label for="formPage">Page</label><select id="formPage"><option>5calehq</option><option>n3xtgenhq</option></select>
+ <div id="formBody"></div>
+ <div class="fa"><a class="btn ghost" href="https://docs.google.com/forms/d/e/1FAIpQLSe0F3jbnj5PZKql9WF_draLbruIiZ_NrDVGD2DYs58uLMZAuA/viewform" target="_blank" rel="noopener" style="text-decoration:none">Open Google Form</a><button class="btn" data-close>Done</button></div></dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="tmsg"></span><button id="tundo" hidden>Undo</button></div>
+
+<script>
+var KEY='reelTracker.v1',PAGES=['5calehq','n3xtgenhq'],MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var today=new Date().toISOString().slice(0,10);
+var S={settings:{month:today.slice(0,7),target:27,t24:100000,t20:500000},reels:[]};
+try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);if(p&&p.settings&&Array.isArray(p.reels))S=p;}}catch(e){}
+var V={page:'',sort:'date'},lastDel=null,tt;
+function $(i){return document.getElementById(i);}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function fmt(n){return Number(n||0).toLocaleString('en-IN');}
+function sh(n){return n>=1e7?+(n/1e7).toFixed(1)+' Cr':n>=1e5?+(n/1e5).toFixed(1)+'L':n>=1e3?+(n/1e3).toFixed(1)+'K':String(n);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function inM(r){return (r.date||'').slice(0,7)===S.settings.month;}
+function toast(m,undo){$('tmsg').textContent=m;$('tundo').hidden=!undo;$('toast').classList.add('on');clearTimeout(tt);tt=setTimeout(function(){$('toast').classList.remove('on');},undo?6000:2200);}
+
+function panel(pg){
+ var rs=S.reels.filter(function(r){return r.page===pg&&inM(r);}),n=rs.length,tot=0,best=0,T=S.settings;
+ rs.forEach(function(r){var v=+r.views||0;tot+=v;if(v>best)best=v;});
+ var ms=[{n:20,need:T.t20},{n:24,need:T.t24},{n:T.target,need:0}].filter(function(m){return m.n<=T.target;});
+ var met=ms.map(function(m){return n>=m.n&&best>=m.need;}),paid=met.some(Boolean);
+ var ticks=ms.map(function(m,i){return '<div class="tick'+(met[i]?' hit':'')+(i===ms.length-1?' last':'')+'" style="left:'+(m.n/T.target*100)+'%"><span>'+m.n+'</span></div>';}).join('');
+ var parts=S.settings.month.split('-'),end=new Date(+parts[0],+parts[1],0),now=new Date(today),left=Math.round((end-now)/864e5)+1,pace='';
+ var rem=Math.max(0,T.target-n);
+ if(now>end)pace='Month ended.';else if(now<new Date(+parts[0],+parts[1]-1,1))pace='This month hasn’t started yet.';
+ else pace=rem?rem+' more to reach '+T.target+' — about '+(rem/left).toFixed(1)+' reels a day for '+left+' days.':'Target reached. Extra reels still add views.';
+ var dim=end.getDate(),cnt={},curM=today.slice(0,7)===S.settings.month,td=curM?+today.slice(8):0,heat='',streak=0,proj='';
+ rs.forEach(function(r){var d=+(r.date||'').slice(8);cnt[d]=(cnt[d]||0)+1;});
+ for(var d=1;d<=dim;d++)heat+='<i class="'+(cnt[d]?'on':'')+(d===td?' td':'')+(td&&d>td?' fut':'')+'" title="'+d+(cnt[d]?': '+cnt[d]+' reel'+(cnt[d]>1?'s':''):'')+'"></i>';
+ var sd=curM?td:dim;if(curM&&!cnt[sd])sd--;while(sd>0&&cnt[sd]){streak++;sd--;}
+ if(curM&&td>0&&n>0)proj=' On this pace: ~'+Math.round(n/td*dim)+' reels and ~'+sh(Math.round(tot/td*dim))+' views by month end.';
+ function line(h,txt,why){return '<li class="'+(h?'hit':'')+'"><b>'+txt+'</b><em>'+why+'</em></li>';}
+ var c24=ms.length>1?ms[1]:null;
+ var l1=line(met[ms.length-1],n+'/'+T.target+' reels',n>=T.target?'done':(T.target-n)+' to go');
+ var l2=line(met[1],'24 reels + a '+sh(T.t24)+' reel',(n<24?(24-n)+' more reels':'')+(n<24&&best<T.t24?' · ':'')+(best<T.t24?'best is '+sh(best):(n>=24?'done':'')));
+ var l3=line(met[0],'20 reels + a '+sh(T.t20)+' reel',(n<20?(20-n)+' more reels':'')+(n<20&&best<T.t20?' · ':'')+(best<T.t20?'best is '+sh(best):(n>=20?'done':'')));
+ return '<section class="panel p-'+pg+'"><div class="ph"><div class="name"><i></i>'+pg+'</div><span class="pill'+(paid?' ok':'')+'">'+(paid?'Full payout unlocked':'In progress')+'</span></div>'+
+ '<div class="count">'+n+' <small>of '+T.target+' reels</small></div><div class="ruler"><div class="fill" style="width:'+Math.min(100,n/T.target*100)+'%"></div>'+ticks+'</div>'+
+ '<div class="stats"><div><span>Total views</span><b>'+sh(tot)+'</b></div><div><span>Best reel</span><b>'+sh(best)+'</b></div><div><span>Average</span><b>'+sh(n?Math.round(tot/n):0)+'</b></div></div>'+
+ '<div class="heat" aria-label="Days you posted">'+heat+'</div><p class="pace">'+pace+proj+' Streak: '+streak+' day'+(streak===1?'':'s')+'.</p><ul class="chk">'+l1+'</ul></section>';
+}
+function insights(){
+ var rs=S.reels.filter(inM);if(!rs.length)return '';
+ var wd=[0,1,2,3,4,5,6].map(function(){return {n:0,v:0};}),ppl={},WD=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+ rs.forEach(function(r){var d=new Date((r.date||today)+'T00:00:00').getDay(),v=+r.views||0;wd[d].n++;wd[d].v+=v;var k=r.about||'Unnamed',p=ppl[k]=ppl[k]||{n:0,v:0};p.n++;p.v+=v;});
+ var bi=-1,ba=-1;wd.forEach(function(w,i){if(w.n&&w.v/w.n>ba){ba=w.v/w.n;bi=i;}});
+ var L=Object.keys(ppl).sort(function(a,b){return ppl[b].v-ppl[a].v;}).slice(0,5);
+ return '<div class="sgc"><span>Best day to post (this month)</span><b>'+WD[bi]+'</b><small>'+sh(Math.round(ba))+' avg views per reel</small></div>'+
+ '<div class="sgc"><span>Views by subject</span>'+L.map(function(k){return '<div class="lb"><b>'+esc(k)+'</b><em>'+ppl[k].n+' reel'+(ppl[k].n>1?'s':'')+' · '+sh(ppl[k].v)+'</em></div>';}).join('')+'</div>';
+}
+function renderTop(){
+ var q=S.settings.month.split('-');$('mlabel').textContent=MN[+q[1]-1]+' '+q[0];
+ var keep=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('.list');
+ $('panels').innerHTML=PAGES.map(panel).join('');$('ins').innerHTML=insights();
+}
+function renderList(){
+ var rs=S.reels.filter(function(r){return inM(r)&&(!V.page||r.page===V.page)&&(!V.q||((r.title||'')+' '+(r.about||'')).toLowerCase().indexOf(V.q)>-1);});
+ rs.sort(function(a,b){return V.sort==='views'?(+b.views||0)-(+a.views||0):(b.date||'').localeCompare(a.date||'');});
+ if(!rs.length){$('list').innerHTML='<div class="empty"><b>No reels in this month yet</b>Tap “Add reel” to log your first one.</div>';return;}
+ var top={};PAGES.forEach(function(pg){var m=-1,id=null;S.reels.forEach(function(r){if(r.page===pg&&inM(r)&&(+r.views||0)>m){m=+r.views||0;id=r.id;}});if(m>0)top[id]=1;});
+ $('list').innerHTML=rs.map(function(r){
+  var h=r.hist&&r.hist.length?r.hist[r.hist.length-1].v:null,dl=h==null?'':(r.views-h);
+  return '<div class="row p-'+r.page+'" data-id="'+r.id+'"><div class="t"><b>'+esc(r.title||'Untitled reel')+(top[r.id]?'<span class="star">Top reel</span>':'')+'</b><small><i></i>'+esc(r.page)+' · '+esc(r.date)+'</small><input class="ab" list="people" data-ab placeholder="Whom is it about?" value="'+esc(r.about||'')+'" autocomplete="off"></div>'+
+  '<label class="v"><input inputmode="numeric" aria-label="Views for '+esc(r.title||'reel')+'" value="'+fmt(r.views)+'" data-v><span class="d'+(dl<0?' neg':'')+'">'+(dl===''||dl===0?'':(dl>0?'+':'')+fmt(dl)+' since last update')+'</span></label>'+
+  '<div class="ra">'+(r.link?'<a href="'+esc(r.link)+'" target="_blank" rel="noopener" aria-label="Open reel">↗</a>':'')+'<button data-del aria-label="Delete reel">✕</button></div></div>';
+ }).join('');
+}
+function renderAll(){renderTop();renderList();}
+
+$('prev').onclick=$('next').onclick=null;
+function shift(d){var q=S.settings.month.split('-'),dt=new Date(+q[0],+q[1]-1+d,1);S.settings.month=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');save();renderAll();}
+$('prev').onclick=function(){shift(-1);};$('next').onclick=function(){shift(1);};
+function seg(id,key){$(id).addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;V[key]=b.getAttribute('data-v');[].forEach.call($(id).children,function(x){x.setAttribute('aria-pressed',x===b);});renderList();});}
+seg('fPage','page');seg('fSort','sort');
+document.addEventListener('click',function(e){if(e.target.hasAttribute&&e.target.hasAttribute('data-close'))e.target.closest('dialog').close();});
+$('q').addEventListener('input',function(){V.q=this.value.trim().toLowerCase();renderList();});
+$('csvCopy').onclick=function(){function c(x){return '"'+String(x==null?'':x).replace(/"/g,'""')+'"';}cp(['date,page,title,about,views,link'].concat(S.reels.map(function(r){return [r.date,r.page,r.title,r.about,r.views,r.link].map(c).join(',');})).join('\n'));};
+var more=false;$('addMore').onclick=function(){more=true;$('fAdd').requestSubmit();};
+document.addEventListener('keydown',function(e){if(e.key!=='n'||e.metaKey||e.ctrlKey||e.altKey)return;var t=e.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT'||document.querySelector('dialog[open]'))return;e.preventDefault();$('openAdd').click();});
+$('openAdd').onclick=function(){$('nDate').value=today;$('dAdd').showModal();$('nTitle').focus();};
+$('fAdd').addEventListener('submit',function(e){e.preventDefault();var d=$('nDate').value;if(!d)return;
+ S.reels.push({id:Date.now()+Math.random().toString(36).slice(2,6),date:d,page:$('nPage').value,title:$('nTitle').value.trim(),about:$('nAbout').value.trim(),link:$('nLink').value.trim(),views:+$('nViews').value||0,hist:[]});
+ S.settings.month=d.slice(0,7);save();if(more){more=false;$('nTitle').value='';$('nAbout').value='';$('nLink').value='';$('nViews').value='';$('nTitle').focus();}else{$('fAdd').reset();$('dAdd').close();}renderAll();toast('Reel saved');});
+$('list').addEventListener('input',function(e){var row=e.target.closest('.row');if(!row||!e.target.hasAttribute('data-v'))return;
+ var v=parseInt(e.target.value.replace(/[^0-9]/g,''),10)||0;S.reels.forEach(function(r){if(r.id===row.getAttribute('data-id'))r.views=v;});save();renderTop();});
+$('list').addEventListener('focusin',function(e){if(e.target.hasAttribute('data-v')){var r=S.reels.filter(function(x){return x.id===e.target.closest('.row').getAttribute('data-id');})[0];e.target._old=r?r.views:0;e.target.value=r?r.views:0;e.target.select();}});
+$('list').addEventListener('focusout',function(e){if(!e.target.hasAttribute('data-v'))return;var id=e.target.closest('.row').getAttribute('data-id'),old=e.target._old;
+ var ch=false;S.reels.forEach(function(r){if(r.id===id&&old!=null&&old!==r.views){r.hist=(r.hist||[]);r.hist.push({t:Date.now(),v:old});ch=true;}else if(r.id===id){e.target.value=fmt(r.views);}});if(ch){save();renderList();toast('Views updated');}});
+$('list').addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.hasAttribute('data-v')){var all=[].slice.call($('list').querySelectorAll('[data-v]')),i=all.indexOf(e.target);(all[i+1]||e.target).focus();if(!all[i+1])e.target.blur();}});
+$('list').addEventListener('click',function(e){var b=e.target.closest('[data-del]');if(!b)return;var id=b.closest('.row').getAttribute('data-id');
+ lastDel=S.reels.filter(function(r){return r.id===id;})[0];S.reels=S.reels.filter(function(r){return r.id!==id;});save();renderAll();toast('Reel deleted',true);});
+$('tundo').onclick=function(){if(lastDel){S.reels.push(lastDel);lastDel=null;save();renderAll();toast('Reel restored');}};
+$('openSet').onclick=function(){$('sT').value=S.settings.target;$('s24').value=S.settings.t24;$('s20').value=S.settings.t20;$('dSet').showModal();};
+[['sT','target'],['s24','t24'],['s20','t20']].forEach(function(a){$(a[0]).addEventListener('input',function(){S.settings[a[1]]=+$(a[0]).value||0;if(S.settings.target<1)S.settings.target=27;save();renderTop();});});
+$('bkMake').onclick=function(){$('bk').value=JSON.stringify(S);$('bk').select();};
+$('bkLoad').onclick=function(){try{var p=JSON.parse($('bk').value);if(p&&p.settings&&Array.isArray(p.reels)){S=p;save();renderAll();toast('Backup restored');}else toast('That text isn’t a valid backup');}catch(e){toast('That text isn’t a valid backup');}};
+$('list').addEventListener('change',function(e){if(!e.target.hasAttribute('data-ab'))return;var id=e.target.closest('.row').getAttribute('data-id');S.reels.forEach(function(r){if(r.id===id)r.about=e.target.value.trim();});save();toast('Saved');});
+function fb(t){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('Copied');}catch(e){toast('Couldn’t copy. Select the text and copy it.');}a.remove();}
+function cp(t){try{navigator.clipboard.writeText(t).then(function(){toast('Copied');},function(){fb(t);});}catch(e){fb(t);}}
+function formRows(){var pg=$('formPage').value;return S.reels.filter(function(r){return r.page===pg&&inM(r);}).sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});}
+function isSG(r){return /goenka/i.test(r.about||'');}
+function sumV(a){var t=0;a.forEach(function(r){t+=(+r.views||0);});return t;}
+function frow(label,val,extra){return '<div class="frow"><div class="t"><b>'+label+'</b></div><div>'+(extra||'<span class="fv">'+esc(val)+'</span>')+'<button class="btn ghost sm" data-copy="'+esc(val)+'">Copy</button></div></div>';}
+function renderForm(){
+ var pg=$('formPage').value,rs=S.reels.filter(function(r){return r.page===pg&&inM(r);}),sg=rs.filter(isSG),miss=rs.filter(function(r){return !r.about;}).length;
+ S.followers=S.followers||{};var fo=S.followers[S.settings.month+'|'+pg]||'';
+ var h='<p class="sum">Fill the form once for each page. Tap Copy, paste into the form, repeat down the list.</p>';
+ if(!rs.length){$('formBody').innerHTML=h+'<div class="empty"><b>No reels for this page and month</b>Add reels first, then come back here at month end.</div>';return;}
+ if(miss)h+='<p class="sum"><span class="warn">'+miss+' reel'+(miss>1?'s have':' has')+' no name.</span> Add whom each reel is about so the Sanjiv Goenka numbers are right.</p>';
+ h+=frow('Your Name','','<input class="fin" id="fName" value="'+esc(S.settings.name||'')+'" placeholder="Type once, saved for next time">').replace('data-copy=""','data-src="fName"');
+ h+=frow('No. of pages you are managing',String(PAGES.length));
+ h+=frow('Name of the page',pg);
+ h+=frow('Total no. of posts / reels you uploaded',String(rs.length));
+ h+=frow('Total no. of reels you uploaded of Dr. Sanjiv Goenka',String(sg.length));
+ h+=frow('No. of followers the page is at','','<input class="fin" id="fFol" inputmode="numeric" value="'+esc(fo)+'" placeholder="Check Instagram">').replace('data-copy=""','data-src="fFol"');
+ h+=frow('Total views you got in the month',String(sumV(rs)),'<span class="fv">'+fmt(sumV(rs))+'</span>');
+ h+=frow('Total views on Sanjiv Goenka reels only',String(sumV(sg)),'<span class="fv">'+fmt(sumV(sg))+'</span>');
+ h+='<div class="frow"><div class="t"><b>Screenshot of the dashboard</b><small>Take a screenshot of the page card on the main screen and upload it.</small></div></div>';
+ $('formBody').innerHTML=h;
+}
+$('openForm').onclick=function(){$('formPage').value=V.page||PAGES[0];renderForm();$('dForm').showModal();};
+$('formPage').onchange=renderForm;
+$('formBody').addEventListener('input',function(e){if(e.target.id==='fName'){S.settings.name=e.target.value;save();}if(e.target.id==='fFol'){S.followers=S.followers||{};S.followers[S.settings.month+'|'+$('formPage').value]=e.target.value;save();}});
+$('formBody').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-src'))cp($(b.getAttribute('data-src')).value);else if(b.hasAttribute('data-copy'))cp(b.getAttribute('data-copy'));});
+var SGtxt='',SGV={period:'all',page:'',sort:'views'},view='tracker';
+function renderSG(){
+ var all=S.reels.filter(isSG),rs=all.filter(function(r){return (SGV.period==='all'||inM(r))&&(!SGV.page||r.page===SGV.page);});
+ rs.sort(function(a,b){return SGV.sort==='views'?(+b.views||0)-(+a.views||0):(b.date||'').localeCompare(a.date||'');});
+ var tot=sumV(rs),best=0;rs.forEach(function(r){if((+r.views||0)>best)best=+r.views||0;});
+ function sg3(id,key,opts){return '<div class="seg" id="'+id+'">'+opts.map(function(o){return '<button data-v="'+o[0]+'" aria-pressed="'+(SGV[key]===o[0])+'">'+o[1]+'</button>';}).join('')+'</div>';}
+ var h='<div class="sgtop">'+sg3('sgPeriod','period',[['all','All time'],['month','This month']])+sg3('sgPage','page',[['','Both pages'],['5calehq','5calehq'],['n3xtgenhq','n3xtgenhq']])+sg3('sgSort','sort',[['views','Most views'],['date','Newest']])+'<button class="btn ghost sm" id="sgCopy">Copy summary</button></div>';
+ h+='<div class="sgstats"><div class="sgc"><span>Sanjiv Goenka reels</span><b>'+rs.length+'</b></div><div class="sgc"><span>Total views</span><b>'+fmt(tot)+'</b><small>'+sh(tot)+'</small></div><div class="sgc"><span>Best reel</span><b>'+sh(best)+'</b></div><div class="sgc"><span>Average views</span><b>'+sh(rs.length?Math.round(tot/rs.length):0)+'</b></div></div>';
+ h+='<div class="sgsplit">'+PAGES.map(function(pg){var a=rs.filter(function(r){return r.page===pg;});return '<div class="sgc p-'+pg+'"><span>'+pg+'</span><b>'+fmt(sumV(a))+'</b><small>'+a.length+' reel'+(a.length===1?'':'s')+'</small></div>';}).join('')+'</div>';
+ var untagged=S.reels.filter(function(r){return !r.about;}).length;
+ if(untagged)h+='<p class="sum"><span class="warn">'+untagged+' reel'+(untagged>1?'s have':' has')+' no name</span> and can’t be counted here. Set “Whom is it about?” on the Tracker tab.</p>';
+ var mo={},mx=0;all.filter(function(r){return !SGV.page||r.page===SGV.page;}).forEach(function(r){var k=(r.date||'').slice(0,7);mo[k]=(mo[k]||0)+(+r.views||0);});
+ Object.keys(mo).forEach(function(k){if(mo[k]>mx)mx=mo[k];});
+ if(Object.keys(mo).length>1)h+='<div class="sgc" style="margin:12px 0 16px"><span>Views by month</span>'+Object.keys(mo).sort().map(function(k){var q=k.split('-');return '<div class="mb"><em>'+MN[+q[1]-1].slice(0,3)+' '+q[0]+'</em><div><u style="width:'+Math.max(2,mo[k]/mx*100)+'%"></u></div><b>'+sh(mo[k])+'</b></div>';}).join('')+'</div>';
+ SGtxt='Sanjiv Goenka reels: '+rs.length+' · total views: '+fmt(tot);
+ h+='<div class="list">';
+ if(!rs.length)h+='<div class="empty"><b>No Sanjiv Goenka reels yet</b>Add a reel and put “Sanjiv Goenka” in “Whom is the reel about?”.</div>';
+ else h+=rs.map(function(r){return '<div class="row p-'+r.page+'"><div class="t"><b>'+esc(r.title||'Untitled reel')+'</b><small><i></i>'+esc(r.page)+' · '+esc(r.date)+'</small></div><div class="v"><span style="font:700 20px var(--fd)">'+fmt(r.views)+'</span><span class="d" style="color:var(--mute)">views</span></div><div class="ra">'+(r.link?'<a href="'+esc(r.link)+'" target="_blank" rel="noopener" aria-label="Open reel">↗</a>':'')+'</div></div>';}).join('');
+ h+='</div>';
+ $('sgView').innerHTML=h;
+}
+function setView(v){view=v;var sg=v==='sg';$('sgView').hidden=!sg;$('panels').hidden=sg;$('ins').hidden=sg;$('secMain').hidden=sg;$('list').hidden=sg;[].forEach.call($('vSeg').children,function(x){x.setAttribute('aria-pressed',x.getAttribute('data-v')===v);});if(sg)renderSG();}
+$('vSeg').addEventListener('click',function(e){var b=e.target.closest('button');if(b)setView(b.getAttribute('data-v'));});
+$('sgView').addEventListener('click',function(e){if(e.target.id==='sgCopy'){cp(SGtxt);return;}var b=e.target.closest('.seg button');if(!b)return;var m={sgPeriod:'period',sgPage:'page',sgSort:'sort'}[b.parentNode.id];if(m){SGV[m]=b.getAttribute('data-v');renderSG();}});
+var _ra=renderAll;renderAll=function(){_ra();if(view==='sg')renderSG();};
+renderAll();
+</script>
+</body>
+</html>
